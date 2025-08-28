@@ -31,36 +31,21 @@ use InvalidArgumentException;
 class Captcha
 {
     /**
-     * Available algorithms mapping
-     *
-     * @var array<string>
-     */
-    private array $algorithmMapping = [
-        'SHA-1' => 'sha1',
-        'SHA-256' => 'sha256',
-        'SHA-384' => 'sha384',
-        'SHA-512' => 'sha512',
-    ];
-
-    /**
      * Constructor
      *
-     * @param int $expired Challenge expiration time in seconds
      * @param int $minSecretNumber Minimum secret number for challenge
      * @param int $maxSecretNumber Maximum secret number for challenge
-     * @param string $algorithm Hash algorithm identifier
+     * @param Algorithm|string $algorithm Hash algorithm identifier
+     * @throws InvalidArgumentException When algorithm is invalid
      */
     public function __construct(
-        protected int    $expired = 120,
         protected int    $minSecretNumber = 0,
         protected int    $maxSecretNumber = 1000000,
-        protected string $algorithm = 'SHA-256',
+        protected Algorithm|string $algorithm = Algorithm::SHA256,
     ) {
-        // Validate and set algorithm
-        if (isset($this->algorithmMapping[$this->algorithm])) {
-            $this->algorithm = $this->algorithmMapping[$this->algorithm];
-        } else {
-            throw new InvalidArgumentException('Unsupported algorithm: ' . $this->algorithm);
+        if (is_string($algorithm)) {
+            $this->algorithm = Algorithm::tryFrom(strtolower($algorithm))
+                ?? throw new InvalidArgumentException("Unsupported algorithm: {$algorithm}");
         }
     }
 
@@ -83,7 +68,7 @@ class Captcha
             return false;
         }
         // Verify the hash
-        $generatedHash = hash_hmac($this->algorithm, (string)$solution, $salt);
+        $generatedHash = hash_hmac($this->algorithm->value, (string)$solution, $salt);
         return hash_equals($generatedHash, $hash);
     }
 
@@ -123,11 +108,11 @@ class Captcha
         $randomNumber = random_int($this->minSecretNumber, $this->maxSecretNumber);
 
         // Create hash
-        $hash = hash_hmac($this->algorithm, (string)$randomNumber, $securedSalt);
+        $hash = hash_hmac($this->algorithm->value, (string)$randomNumber, $securedSalt);
 
         // Create challenge
         $challenge = [
-            'algorithm' => $this->algorithm,
+            'algorithm' => $this->algorithm->value,
             'salt' => $securedSalt,
             'hash' => $hash,
         ];

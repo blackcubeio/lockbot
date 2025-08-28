@@ -1,6 +1,7 @@
 <?php
 
 use blackcube\lockbot\Captcha;
+use blackcube\lockbot\Algorithm;
 
 class CaptchaTest extends \Codeception\Test\Unit
 {
@@ -15,8 +16,7 @@ class CaptchaTest extends \Codeception\Test\Unit
     {
         // Use smaller range for faster tests
         $this->captcha = new Captcha(
-            minSecretNumber: 0,
-            maxSecretNumber: 100
+            minSecretNumber: 0, maxSecretNumber: 100
         );
     }
 
@@ -34,10 +34,9 @@ class CaptchaTest extends \Codeception\Test\Unit
     public function testConstructorWithCustomValues()
     {
         $captcha = new Captcha(
-            expired: 300,
             minSecretNumber: 100,
             maxSecretNumber: 999,
-            algorithm: 'SHA-512'
+            algorithm: Algorithm::SHA512
         );
 
         $this->assertInstanceOf(Captcha::class, $captcha);
@@ -48,7 +47,7 @@ class CaptchaTest extends \Codeception\Test\Unit
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessage('Unsupported algorithm: invalid');
 
-        new Captcha(algorithm: 'invalid');
+        new Captcha(0, 1000000, algorithm: 'invalid');
     }
 
     public function testGenerateChallenge()
