@@ -1,0 +1,4 @@
+actor: CaptchaTester
+modules:
+    enabled:
+        - Asserts

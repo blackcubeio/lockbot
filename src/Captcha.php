@@ -67,13 +67,12 @@ class Captcha
     /**
      * Verify a proof-of-work solution
      *
-     * @param string $key TOTP key identifier
      * @param string $salt The salt used in the challenge
      * @param string $hash The expected hash
      * @param int $solution The proposed solution
      * @return bool True if solution is valid, false otherwise
      */
-    public function verifySolution(string $key, string $salt, string $hash, int $solution): bool
+    public function verifySolution(string $salt, string $hash, int $solution): bool
     {
         $antiReplay = $this->antiReplay($hash);
         if (!$antiReplay) {
@@ -100,7 +99,7 @@ class Captcha
     }
 
     /**
-     * Check validity of the challenge (e.g., TOTP code)
+     * Check validity of the challenge
      *
      * @param string $salt The salt used in the challenge
      * @return bool True if challenge is still valid, false otherwise
@@ -113,10 +112,9 @@ class Captcha
     /**
      * Generate a new proof-of-work challenge
      *
-     * @param string $key TOTP key identifier
      * @return array{algorithm: string, salt: string, hash: string} Challenge data
      */
-    public function generateChallenge(string $key): array
+    public function generateChallenge(): array
     {
         // Generate random salts
         $randomSalt = bin2hex(random_bytes(32)); // 64 characters
@@ -138,7 +136,7 @@ class Captcha
     }
 
     /**
-     * Secure the salt by embedding stuff (stub implementation)
+     * Secure the salt by upgrading it (stub implementation)
      *
      * @param string $salt The original salt
      * @return string The secured salt
