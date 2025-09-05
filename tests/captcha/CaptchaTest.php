@@ -149,4 +149,56 @@ class CaptchaTest extends \Codeception\Test\Unit
         $this->assertEquals(64, strlen($challenge1['salt']));
         $this->assertEquals(64, strlen($challenge2['salt']));
     }
+
+    public function testSetAlgorithmWithEnum()
+    {
+        // Test setting algorithm with Algorithm enum
+        $this->captcha->setAlgorithm(Algorithm::SHA512);
+
+        $challenge = $this->captcha->generateChallenge();
+        $this->assertEquals('sha512', $challenge['algorithm']);
+
+        // SHA-512 hash should be 128 characters long
+        $this->assertEquals(128, strlen($challenge['hash']));
+    }
+
+    public function testSetAlgorithmWithValidString()
+    {
+        // Test setting algorithm with valid string (case insensitive)
+        $this->captcha->setAlgorithm('SHA384');
+
+        $challenge = $this->captcha->generateChallenge();
+        $this->assertEquals('sha384', $challenge['algorithm']);
+
+        // SHA-384 hash should be 96 characters long
+        $this->assertEquals(96, strlen($challenge['hash']));
+    }
+
+    public function testSetAlgorithmWithValidLowercaseString()
+    {
+        // Test setting algorithm with valid lowercase string
+        $this->captcha->setAlgorithm('sha1');
+
+        $challenge = $this->captcha->generateChallenge();
+        $this->assertEquals('sha1', $challenge['algorithm']);
+
+        // SHA-1 hash should be 40 characters long
+        $this->assertEquals(40, strlen($challenge['hash']));
+    }
+
+    public function testSetAlgorithmThrowsExceptionForInvalidString()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported algorithm: invalid-algo');
+
+        $this->captcha->setAlgorithm('invalid-algo');
+    }
+
+    public function testSetAlgorithmThrowsExceptionForEmptyString()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unsupported algorithm: ');
+
+        $this->captcha->setAlgorithm('');
+    }
 }
