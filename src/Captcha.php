@@ -50,6 +50,22 @@ class Captcha
     }
 
     /**
+     * Set the hash algorithm
+     *
+     * @param Algorithm|string $algorithm Hash algorithm identifier
+     * @throws InvalidArgumentException When algorithm is invalid
+     */
+    public function setAlgorithm(Algorithm|string $algorithm): void
+    {
+        if (is_string($algorithm)) {
+            $this->algorithm = Algorithm::tryFrom(strtolower($algorithm))
+                ?? throw new InvalidArgumentException("Unsupported algorithm: {$algorithm}");
+        } else {
+            $this->algorithm = $algorithm;
+        }
+    }
+
+    /**
      * Verify a proof-of-work solution
      *
      * @param string $salt The salt used in the challenge
